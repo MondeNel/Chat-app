@@ -1,35 +1,16 @@
 import express from "express";
+import { signup, login, logout } from "../controllers/auth.controller.js";
 
 const router = express.Router();
 
 // Signup route
-router.post("/signup", (req, res) => {
-    try {
-        res.status(200).json({ message: "Signup successful" });
-    } catch (error) {
-        console.error("Signup error:", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
-});
+router.get("/signup", signup);
 
 // Login route
-router.post("/login", (req, res) => {
-    try {
-        res.status(200).json({ message: "Login successful" });
-    } catch (error) {
-        console.error("Login error:", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
-});
+router.get("/login", login);
+
 
 // Logout route
-router.get("/logout", (req, res) => {
-    try {
-        res.status(200).json({ message: "Logout successful" });
-    } catch (error) {
-        console.error("Logout error:", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
-});
+router.get("/logout", logout);
 
 export default router;
