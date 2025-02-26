@@ -3,47 +3,47 @@ import bcrypt from "bcryptjs"
 import { generateToken } from "../lib/utils.js";
 
 export const signup = async (req, res) => {
-    const {fullName, email, password} = req.body
+    const { fullName, email, password } = req.body;
+
     try {
+        // Validate password length
         if (password.length < 6) {
             return res.status(400).json({ message: "Password must be at least 6 characters" });
         }
 
-        const user = await User.findOne({email});
+        // Check if the email is already registered
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: "Email already exists" });
+        }
 
-        if (user) return res.status(400).json({ message: "Email already exists!" });
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 12);
 
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
+        // Create a new user
         const newUser = new User({
             fullName,
             email,
-            password: hashedPassword
+            password: hashedPassword,
         });
-        
-        if(newUser){
-            // generate jwt token
-            generateToken(newUser._id, res)
-            await newUser.save();
 
-            res.status(201).json({
-                _id: newUser._id,
-                fullName: newUser.fullName,
-                email: newUser.email,
-                profilePic: newUser.profilePic,
-            })
-        }else {
-            res.status(400).json({ message: "Invalid usetr data" });
-        }
-        
+        // Save the user to the database
+        await newUser.save();
 
+        // Generate a JWT for the new user
+        const token = jwt.sign(
+            { email: newUser.email, id: newUser._id },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+        );
+
+        // Send the response with the user and token
+        res.status(201).json({ user: newUser, token });
     } catch (error) {
-        console.log("Error in signup controller", error.message);
-        res.status(500).json({ message: "internal Server Error!" });
+        console.error("Signup error:", error);
+        res.status(500).json({ message: "Something went wrong" });
     }
-
-}
+};
 
 export const login = (req, res) => {
     res.send("login route")
