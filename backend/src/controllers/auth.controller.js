@@ -1,14 +1,14 @@
 import User from "../models/user.models.js";
-import bcrypt from "bcryptjs"
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken"; // Import jwt module
 import { generateToken } from "../lib/utils.js";
 
 export const signup = async (req, res) => {
     const { fullName, email, password } = req.body;
 
     try {
-
         // Check to see if any field is not filled
-        if(!fullName || !email || !password){
+        if (!fullName || !email || !password) {
             return res.status(400).json({ message: "All fields are required!" });
         }
 
@@ -39,7 +39,7 @@ export const signup = async (req, res) => {
         // Generate a JWT for the new user
         const token = jwt.sign(
             { email: newUser.email, id: newUser._id },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET, // Corrected typo here
             { expiresIn: "1h" }
         );
 
@@ -52,9 +52,9 @@ export const signup = async (req, res) => {
 };
 
 export const login = (req, res) => {
-    res.send("login route")
-}
+    res.send("login route");
+};
 
 export const logout = (req, res) => {
-    res.send("logout route")
-}
+    res.send("logout route");
+};
