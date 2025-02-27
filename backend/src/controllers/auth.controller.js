@@ -1,6 +1,7 @@
 import User from "../models/user.models.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import cloudinary from "../lib/cloudinary.js";
 
 // SIGN-UP
 export const signup = async (req, res) => {
@@ -108,7 +109,8 @@ export const logout = (req, res) => {
 
 // UPDATE PROFILE
 export const updateProfile = async (req, res) => {
-    const { fullName, profilePic } = req.body;
+    const { fullName } = req.body;
+    let { profilePic } = req.body;
 
     // Check if at least one field is provided
     if (!fullName && !profilePic) {
@@ -123,6 +125,18 @@ export const updateProfile = async (req, res) => {
     const userId = req.user._id; // Get the user ID from the request object (attached by protectRoute)
 
     try {
+        // If a new profile picture is provided, upload it to Cloudinary
+        if (profilePic) {
+            // Upload the image to Cloudinary
+            const uploadedResponse = await cloudinary.uploader.upload(profilePic, {
+                folder: "profile-pictures", // Optional: Organize images in a folder
+                transformation: [{ width: 150, height: 150, crop: "fill" }], // Optional: Resize and crop the image
+            });
+
+            // Set the profilePic URL to the Cloudinary secure URL
+            profilePic = uploadedResponse.secure_url;
+        }
+
         // Find the user by ID and update their profile
         const updatedUser = await User.findByIdAndUpdate(
             userId,
