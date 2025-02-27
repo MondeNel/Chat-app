@@ -1,27 +1,39 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.models.js";
 
-export const updateProfile = async (req, res) => {
-    const { fullName, profilePic } = req.body;
-    const userId = req.user._id; // Get the user ID from the request object (attached by protectRoute)
-
+export const protectRoute = async (req, res, next) => {
     try {
-        // Find the user by ID and update their profile
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { fullName, profilePic },
-            { new: true } // Return the updated user
-        ).select("-password"); // Exclude the password field from the response
+        // Extract the token from the cookies
+        const token = req.cookies.jwt;
+
+        // Check if the token exists
+        if (!token) {
+            return res.status(401).json({ message: "Unauthorized - No Token Provided" });
+        }
+
+        // Verify the token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Check if the token is valid
+        if (!decoded) {
+            return res.status(401).json({ message: "Unauthorized - Invalid Token" });
+        }
+
+        // Find the user in the database
+        const user = await User.findById(decoded.userId).select("-password");
 
         // Check if the user exists
-        if (!updatedUser) {
+        if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // Send the updated user in the response
-        res.status(200).json(updatedUser);
+        // Attach the user to the request object
+        req.user = user;
+
+        // Call the next middleware or route handler
+        next();
     } catch (error) {
-        console.error("Error updating profile:", error.message);
+        console.log("Error in protectRoute middleware: ", error.message);
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
