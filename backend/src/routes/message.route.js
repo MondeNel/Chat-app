@@ -9,6 +9,8 @@ const router = express.Router();
 // Define a GET route to fetch users for the sidebar
 // This route is protected by the protectRoute middleware
 router.get("/users", protectRoute, getUsersForSidebar);
+router.get("/:id", protectRoute, getMessages);
+
 
 // Export the router for use in other parts of the application
 export default router;
