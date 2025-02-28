@@ -52,7 +52,6 @@ export const signup = async (req, res) => {
     }
 };
 
-// LOGIN
 export const login = async (req, res) => {
     const { email, password } = req.body;
 
@@ -80,6 +79,14 @@ export const login = async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
+
+        // Set the token in a cookie
+        res.cookie("jwt", token, {
+            httpOnly: true,
+            sameSite: "strict",
+            secure: process.env.NODE_ENV !== "development",
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
 
         // Send the response with the user and token
         res.status(200).json({ user, token });
@@ -124,6 +131,10 @@ export const updateProfile = async (req, res) => {
 
     const userId = req.user._id; // Get the user ID from the request object (attached by protectRoute)
 
+    // Debugging logs
+    console.log("Authenticated User:", req.user);
+    console.log("User ID:", userId);
+
     try {
         // If a new profile picture is provided, upload it to Cloudinary
         if (profilePic) {
@@ -144,6 +155,9 @@ export const updateProfile = async (req, res) => {
             { new: true, runValidators: true } // Return the updated user and enforce schema validation
         ).select("-password"); // Exclude the password field from the response
 
+        // Debugging log
+        console.log("Updated User:", updatedUser);
+
         // Check if the user exists
         if (!updatedUser) {
             return res.status(404).json({ message: "User not found" });
@@ -157,11 +171,13 @@ export const updateProfile = async (req, res) => {
     }
 };
 
-export const checkAuth = (res, req) => {
+// Return authenticated user details in the response.
+export const checkAuth = (req, res) => {
     try {
+        // Return the authenticated user's details
         res.status(200).json(req.user);
     } catch (error) {
         console.log("Error in checkAuth controller", error.message);
         res.status(500).json({ message: "Internal Server Error!" });
     }
-}
+};

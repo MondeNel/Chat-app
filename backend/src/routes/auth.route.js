@@ -16,7 +16,7 @@ router.post("/logout", logout);
 // Update profile route (protected)
 router.put("/update-profile", protectRoute, updateProfile);
 
-// Check if user is authenticated
-router.get("/check", protectRoute, checkAuth)
+// Check if user is authenticated (protected)
+router.get("/check-auth", protectRoute, checkAuth);
 
 export default router;
