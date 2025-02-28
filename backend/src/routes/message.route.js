@@ -1,6 +1,7 @@
 import express from "express";
 import { protectRoute } from "../middleware/auth.middleware"; 
-import { getUsersForSidebar } from "../controllers/user.controller.js"; 
+import { getUsersForSidebar } from "../controllers/message.controller.js"
+
 
 // Create an Express router
 const router = express.Router();
