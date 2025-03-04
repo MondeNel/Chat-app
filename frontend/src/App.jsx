@@ -1,6 +1,6 @@
 import React from "react";
 import Navbar from "./components/Navbar"; // Import the Navbar component
-import { Routes, Route } from "react-router-dom"; // Import routing components for navigation
+import { Routes, Route, Navigate } from "react-router-dom"; // Import routing components for navigation
 import HomePage from "./pages/HomePage"; // Import the HomePage component
 import { useEffect } from "react"; // Import useEffect hook for side effects
 import SignUpPage from "./pages/SignUpPage"; // Import SignUpPage component for user registration
@@ -23,7 +23,7 @@ const App = () => {
   console.log({authUser});
 
   // Return a loading spinner if authentication is being checked
-  if (isCheckingAuth) 
+  if (isCheckingAuth && !userAuth) 
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader className="size-10 animate-spin" />
@@ -37,11 +37,11 @@ const App = () => {
 
       {/* Define routes for different pages */}
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={authUser ? <HomePage /> : <Navigate to={"/login"} />} />
+        <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to={"/home"} />} />
+        <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to={"/home"} />} />
         <Route path="/setting" element={<SettingsPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to={"/login"} />} />
       </Routes>
     </div>
   );
