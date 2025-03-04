@@ -1,18 +1,28 @@
-import React from 'react'
+import React from "react";
+import Navbar from "./components/Navbar";
+import { Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import SignUpPage from "./pages/SignUpPage"; // Import SignUpPage
+import LoginPage from "./pages/LoginPage"; // Import LoginPage
+import SettingsPage from "./pages/SettingsPage"; // Import SettingsPage
+import ProfilePage from "./pages/ProfilePage"; // Import ProfilePage
 
 const App = () => {
   return (
     <div>
-      <button className="btn btn-neutral">Neutral</button>
-<button className="btn btn-primary">Primary</button>
-<button className="btn btn-secondary">Secondary</button>
-<button className="btn btn-accent">Accent</button>
-<button className="btn btn-info">Info</button>
-<button className="btn btn-success">Success</button>
-<button className="btn btn-warning">Warning</button>
-<button className="btn btn-error">Error</button>
-    </div>
-  )
-}
+      {/* Navbar component */}
+      <Navbar />
 
-export default App
+      {/* Define routes */}
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/setting" element={<SettingsPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+      </Routes>
+    </div>
+  );
+};
+
+export default App;
