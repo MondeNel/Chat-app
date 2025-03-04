@@ -2,7 +2,9 @@ import React from 'react'
 
 const App = () => {
   return (
-    <div className='text-red-500'>Hello world</div>
+    <div className="flex justify-center items-center min-h-screen bg-base-200">
+      <button className="btn btn-primary">Click Me</button>
+    </div>
   )
 }
 
