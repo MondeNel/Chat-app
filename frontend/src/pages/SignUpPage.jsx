@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 import { useAuthStore } from '../store/useAuthStore';
 import { MessageSquare, User, Mail, Lock, EyeOff, Eye, Loader2 } from 'lucide-react';
 
@@ -105,7 +106,11 @@ const SignUpPage = () => {
 
             {/* Submit Button */}
             <div>
-              <button type='submit' className='btn btn-primary w-full flex items-center justify-center' disabled={isSigningUp}>
+              <button
+                type='submit'
+                className='btn btn-primary w-full flex items-center justify-center'
+                disabled={isSigningUp}
+              >
                 {isSigningUp ? (
                   <Loader2 className='size-5 animate-spin' /> // Centered spinner
                 ) : (
@@ -114,6 +119,16 @@ const SignUpPage = () => {
               </button>
             </div>
           </form>
+
+          {/* Sign In Link */}
+          <div className='text-center'>
+            <p className='text-base-content/60'>
+              Already have an account?{' '}
+              <Link to='/login' className='link link-primary'>
+                Sign in
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
