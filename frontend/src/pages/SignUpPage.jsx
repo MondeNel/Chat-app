@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
-import { MessageSquare, User, Mail, Lock, EyeOff, Eye, Loader } from 'lucide-react';
+import { MessageSquare, User, Mail, Lock, EyeOff, Eye, Loader2 } from 'lucide-react';
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
@@ -9,13 +9,12 @@ const SignUpPage = () => {
     password: '',
   });
 
-  const [showPassword, setShowPassword] = useState(false); // Added state for password visibility
-
+  const [showPassword, setShowPassword] = useState(false);
   const { signup, isSigningUp } = useAuthStore();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    signup(formData); // Call the signup function with form data
+    signup(formData);
   };
 
   return (
@@ -106,12 +105,9 @@ const SignUpPage = () => {
 
             {/* Submit Button */}
             <div>
-              <button type='submit' className='btn btn-primary w-full' disabled={isSigningUp}>
+              <button type='submit' className='btn btn-primary w-full flex items-center justify-center' disabled={isSigningUp}>
                 {isSigningUp ? (
-                  <>
-                  <Loader className='size-5 animate-spin' />
-                  Loading...
-                  </>
+                  <Loader2 className='size-5 animate-spin' /> // Centered spinner
                 ) : (
                   'Create Account'
                 )}
