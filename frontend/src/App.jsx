@@ -23,7 +23,7 @@ const App = () => {
   console.log({authUser});
 
   // Return a loading spinner if authentication is being checked
-  if (isCheckingAuth && !userAuth) 
+  if (isCheckingAuth) 
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader className="size-10 animate-spin" />
@@ -47,4 +47,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default App;s

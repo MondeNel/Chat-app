@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 import { useAuthStore } from '../store/useAuthStore'; 
-import { MessageSquare, User } from 'lucide-react'; 
+import { MessageSquare, User, Mail } from 'lucide-react'; 
 
 const SignUpPage = () => {
 
@@ -67,6 +67,28 @@ const SignUpPage = () => {
                 />
               </div>
             </div>
+
+            <div className='form-control'>
+              <label className='label'>
+                <span className='label-text font-medium'>Email Address</span>
+              </label>
+              <div className='relative'>
+                {/* User Icon */}
+                <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
+                  <Mail className='size-5 text-base-content/40'/>
+                </div>
+                {/* Email Input Field */}
+                <input 
+                  type="email"
+                  className={`input input-bordered w-full pl-10`} 
+                  placeholder='you@example.com' 
+                  value={formData.fullName} 
+                  onChange={(e) => setFormData({...formData, email: e.target.value})} 
+                />
+              </div>
+            </div>
+
+
           </form>
         </div>
       </div>
