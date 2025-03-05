@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
-import { MessageSquare, User, Mail, Lock, EyeOff, Eye } from 'lucide-react';
+import { MessageSquare, User, Mail, Lock, EyeOff, Eye, Loader } from 'lucide-react';
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    password: '', // Fixed from 'passwrd' to 'password'
+    password: '',
   });
 
   const [showPassword, setShowPassword] = useState(false); // Added state for password visibility
@@ -107,7 +107,14 @@ const SignUpPage = () => {
             {/* Submit Button */}
             <div>
               <button type='submit' className='btn btn-primary w-full' disabled={isSigningUp}>
-                {isSigningUp ? 'Signing Up...' : 'Sign Up'}
+                {isSigningUp ? (
+                  <>
+                  <Loader className='size-5 animate-spin' />
+                  Loading...
+                  </>
+                ) : (
+                  'Create Account'
+                )}
               </button>
             </div>
           </form>
