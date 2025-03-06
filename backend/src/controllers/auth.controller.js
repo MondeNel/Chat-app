@@ -13,6 +13,12 @@ export const signup = async (req, res) => {
             return res.status(400).json({ message: "All fields are required!" });
         }
 
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: "Invalid email format" });
+        }
+
         // Validate password length
         if (password.length < 6) {
             return res.status(400).json({ message: "Password must be at least 6 characters" });
@@ -52,6 +58,7 @@ export const signup = async (req, res) => {
     }
 };
 
+// LOGIN
 export const login = async (req, res) => {
     const { email, password } = req.body;
 
@@ -59,6 +66,12 @@ export const login = async (req, res) => {
         // Check if the email and password are provided
         if (!email || !password) {
             return res.status(400).json({ message: "Email and password are required!" });
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: "Invalid email format" });
         }
 
         // Check if the user exists
@@ -131,13 +144,15 @@ export const updateProfile = async (req, res) => {
 
     const userId = req.user._id; // Get the user ID from the request object (attached by protectRoute)
 
-    // Debugging logs
-    console.log("Authenticated User:", req.user);
-    console.log("User ID:", userId);
-
     try {
         // If a new profile picture is provided, upload it to Cloudinary
         if (profilePic) {
+            // Validate profilePic URL format
+            const urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+            if (!urlRegex.test(profilePic)) {
+                return res.status(400).json({ message: "Invalid profile picture URL" });
+            }
+
             // Upload the image to Cloudinary
             const uploadedResponse = await cloudinary.uploader.upload(profilePic, {
                 folder: "profile-pictures", // Optional: Organize images in a folder
@@ -155,9 +170,6 @@ export const updateProfile = async (req, res) => {
             { new: true, runValidators: true } // Return the updated user and enforce schema validation
         ).select("-password"); // Exclude the password field from the response
 
-        // Debugging log
-        console.log("Updated User:", updatedUser);
-
         // Check if the user exists
         if (!updatedUser) {
             return res.status(404).json({ message: "User not found" });
@@ -171,7 +183,7 @@ export const updateProfile = async (req, res) => {
     }
 };
 
-// Return authenticated user details in the response.
+// CHECK AUTH
 export const checkAuth = (req, res) => {
     try {
         // Return the authenticated user's details

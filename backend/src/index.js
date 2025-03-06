@@ -4,8 +4,7 @@ import authRoutes from "./routes/auth.route.js";
 import { connectDB } from "./lib/db.js";
 import cookieParser from "cookie-parser";
 import messageRoutes from "./routes/message.route.js";
-import cors from 'cors';
-
+import cors from "cors";
 
 // Load environment variables
 dotenv.config();
@@ -16,10 +15,14 @@ const PORT = process.env.PORT || 5001; // Fallback to 5001 if PORT is not set
 // Middleware to parse JSON bodies
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors{
-    origin: "http://localhost:5174/",
-    Credential: true,
-});
+
+// CORS configuration
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Update to your frontend's URL
+    credentials: true,
+  })
+);
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -27,11 +30,11 @@ app.use("/api/message", messageRoutes);
 
 // Connect to the database and start the server
 connectDB()
-    .then(() => {
-        app.listen(PORT, () => {
-            console.log(`Server is running on PORT: ${PORT}`);
-        });
-    })
-    .catch((error) => {
-        console.error("Failed to connect to the database:", error);
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server is running on PORT: ${PORT}`);
     });
+  })
+  .catch((error) => {
+    console.error("Failed to connect to the database:", error);
+  });
