@@ -2,11 +2,12 @@ import axios from 'axios';
 
 // Create an Axios instance with a base URL and default headers
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:5001/api', 
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api',
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
 
 // Add request interceptor (optional)
 axiosInstance.interceptors.request.use(
@@ -37,4 +38,4 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-export default axiosInstance; // Export the configured instance
+export default axiosInstance;

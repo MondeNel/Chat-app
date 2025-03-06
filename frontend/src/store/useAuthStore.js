@@ -1,8 +1,9 @@
-import { create } from 'zustand';
-import axiosInstance from '../lib/axios.js';
-import toast from 'react-hot-toast';
+import { create } from "zustand";
+import axiosInstance from '../lib/axios.js'
+import toast from "react-hot-toast";
 
-export const useAuthStore = create((set) => ({
+
+export const useAuthStore = create((set, get) => ({
   authUser: null, // Authenticated user data
   isCheckingAuth: true, // Loading state for auth check
   isSigningUp: false, // Loading state for signup
@@ -12,67 +13,72 @@ export const useAuthStore = create((set) => ({
   // Check authentication status
   checkAuth: async () => {
     try {
-      const res = await axiosInstance.get('/auth/check');
-      set({ authUser: res.data }); // Set authenticated user
+      const res = await axiosInstance.get("/auth/check");
+      set({ authUser: res.data });
+      get().connectSocket();
     } catch (error) {
-      console.error('Error in checkAuth:', error);
-      set({ authUser: null }); // Clear user on error
+      console.log("Error in checkAuth:", error);
+      set({ authUser: null });
     } finally {
-      set({ isCheckingAuth: false }); // End loading state
+      set({ isCheckingAuth: false });
     }
   },
 
   // Signup function
   signup: async (data) => {
-    set({ isSigningUp: true }); // Start loading state
+    set({ isSigningUp: true });
     try {
-      const res = await axiosInstance.post('/auth/signup', data);
-      set({ authUser: res.data }); // Set authenticated user
-      toast.success('Account created successfully');
+      const res = await axiosInstance.post("/auth/signup", data);
+      set({ authUser: res.data });
+      toast.success("Account created successfully");
+      get().connectSocket();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Signup failed'); // Handle error message
-      console.error('Error in signup:', error);
+      toast.error(error?.response?.data?.message || "Signup failed");
     } finally {
-      set({ isSigningUp: false }); // End loading state
+      set({ isSigningUp: false });
     }
   },
 
   // Log in an existing user
   login: async (credentials) => {
-    set({ isLoggingIn: true }); // Start loading state
+    set({ isLoggingIn: true });
     try {
-      const res = await axiosInstance.post('/auth/login', credentials);
-      set({ authUser: res.data }); // Set authenticated user
+      const res = await axiosInstance.post("/auth/login", credentials);
+      set({ authUser: res.data });
+      toast.success("Logged in successfully");
+      get().connectSocket();
     } catch (error) {
-      console.error('Error in login:', error);
-      throw error; // Re-throw error for handling in the UI
+      toast.error(error?.response?.data?.message || "Login failed");
     } finally {
-      set({ isLoggingIn: false }); // End loading state
+      set({ isLoggingIn: false });
     }
   },
 
   // Update user profile
-  updateProfile: async (profileData) => {
-    set({ isUpdatingProfile: true }); // Start loading state
+  updateProfile: async (data) => {
+    set({ isUpdatingProfile: true });
     try {
-      const res = await axiosInstance.put('/auth/profile', profileData);
-      set({ authUser: res.data }); // Update authenticated user
+      const res = await axiosInstance.put("/auth/update-profile", data);
+      set({ authUser: res.data });
+      toast.success("Profile updated successfully");
     } catch (error) {
-      console.error('Error in updateProfile:', error);
-      throw error; // Re-throw error for handling in the UI
+      console.log("Error in update profile:", error);
+      toast.error(error?.response?.data?.message || "Profile update failed");
     } finally {
-      set({ isUpdatingProfile: false }); // End loading state
+      set({ isUpdatingProfile: false });
     }
   },
 
   // Log out the user
   logout: async () => {
     try {
-      await axiosInstance.post('/auth/logout');
-      set({ authUser: null }); // Clear authenticated user
+      await axiosInstance.post("/auth/logout");
+      set({ authUser: null });
+      toast.success("Logged out successfully");
+      get().disconnectSocket();
     } catch (error) {
-      console.error('Error in logout:', error);
-      throw error; // Re-throw error for handling in the UI
+      toast.error(error?.response?.data?.message || "Logout failed");
     }
   },
+
 }));
