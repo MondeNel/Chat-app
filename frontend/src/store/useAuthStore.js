@@ -1,10 +1,13 @@
 import { create } from 'zustand';
-import axiosInstance from '../lib/axios.js'; 
+import axiosInstance from '../lib/axios.js';
 import toast from 'react-hot-toast';
 
 export const useAuthStore = create((set) => ({
   authUser: null, // Authenticated user data
   isCheckingAuth: true, // Loading state for auth check
+  isSigningUp: false, // Loading state for signup
+  isLoggingIn: false, // Loading state for login
+  isUpdatingProfile: false, // Loading state for profile update
 
   // Check authentication status
   checkAuth: async () => {
@@ -21,19 +24,18 @@ export const useAuthStore = create((set) => ({
 
   // Signup function
   signup: async (data) => {
-    set({ isSigningUp: true });
+    set({ isSigningUp: true }); // Start loading state
     try {
-      const res = await axiosInstance.post('/auth/signup', data); 
-      set({ authUse:res.data });
+      const res = await axiosInstance.post('/auth/signup', data);
+      set({ authUser: res.data }); // Set authenticated user
       toast.success('Account created successfully');
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || 'Signup failed'); // Handle error message
       console.error('Error in signup:', error);
     } finally {
-      set({ isSigningUp: false });
+      set({ isSigningUp: false }); // End loading state
     }
   },
-
 
   // Log in an existing user
   login: async (credentials) => {
