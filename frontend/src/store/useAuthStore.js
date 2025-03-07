@@ -14,8 +14,8 @@ export const useAuthStore = create((set, get) => ({
   checkAuth: async () => {
     try {
       const res = await axiosInstance.get("/auth/check");
-      console.log("Auth Check Response:", res.data); // ✅ Check if backend response is correct
-      set({ authUser: res.data.user }); // Make sure this matches backend structure
+      console.log("Auth Check Response:", res.data);
+      set({ authUser: res.data.user });
     } catch (error) {
       console.log("Error in checkAuth:", error);
       set({ authUser: null });
@@ -23,7 +23,6 @@ export const useAuthStore = create((set, get) => ({
       set({ isCheckingAuth: false });
     }
   },
-  
 
   // Signup function
   signup: async (data) => {
@@ -33,6 +32,7 @@ export const useAuthStore = create((set, get) => ({
       set({ authUser: res.data });
       toast.success("Account created successfully");
       get().connectSocket();
+      return; // ✅ Prevents the error toast from appearing
     } catch (error) {
       toast.error(error?.response?.data?.message || "Signup failed");
     } finally {
@@ -48,6 +48,7 @@ export const useAuthStore = create((set, get) => ({
       set({ authUser: res.data });
       toast.success("Logged in successfully");
       get().connectSocket();
+      return; // ✅ Prevents the error toast from appearing
     } catch (error) {
       toast.error(error?.response?.data?.message || "Login failed");
     } finally {
@@ -62,8 +63,8 @@ export const useAuthStore = create((set, get) => ({
       const res = await axiosInstance.put("/auth/update-profile", data);
       set({ authUser: res.data });
       toast.success("Profile updated successfully");
+      return; // ✅ Prevents the error toast from appearing
     } catch (error) {
-      console.log("Error in update profile:", error);
       toast.error(error?.response?.data?.message || "Profile update failed");
     } finally {
       set({ isUpdatingProfile: false });
@@ -73,13 +74,17 @@ export const useAuthStore = create((set, get) => ({
   // Log out the user
   logout: async () => {
     try {
-      await axiosInstance.post("/auth/logout");
-      set({ authUser: null });
-      toast.success("Logged out successfully");
-      get().disconnectSocket();
+      const res = await axiosInstance.post("/auth/logout");
+      if (res.status === 200) {
+        set({ authUser: null });
+        toast.success("Logged out successfully");
+        get().disconnectSocket();
+        return; // ✅ Prevents the error toast from appearing
+      }
     } catch (error) {
       toast.error(error?.response?.data?.message || "Logout failed");
     }
   },
-
 }));
+
+
