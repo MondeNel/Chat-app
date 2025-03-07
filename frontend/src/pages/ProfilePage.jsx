@@ -1,19 +1,50 @@
 import React from 'react'
 import { useAuthStore } from '../store/useAuthStore.js'
+import avatar from '../../public/avatar.png'; 
+import { Camera } from 'lucide-react';
 
 const ProfilePage = () => {
+  // Access authentication state and update function from the store
   const { authUser, isUpdatingProfile, updatProfile } = useAuthStore();
 
+  // Handle image upload (function to be implemented)
   const handleImageUpload = async (e) => {};
-
 
   return (
     <div className='h-screen pt20'>
       <div className='max-w-2xl mx-auto p-4 py-8'>
         <div className='bg-base-300 rounded-xl p-6 space-y-8'>
+          {/* Profile Header */}
           <div className='text-center'>
             <h1 className='text-2xl font-semi-bold'>Profile</h1>
             <p className='mt-2'>Your profile information</p>
+          </div>
+
+          {/* Avatar Upload Section */}
+          <div className='flex flex-col items-center gap-4'>
+            <div className='relative'>
+              {/* Profile Picture */}
+              <img src={authUser.profilePic || '/avatar.png'} alt="Profile" 
+                className='size-32 rounded-full object-cover border-4'/>
+              
+              {/* Upload Button */}
+              <label htmlFor="avatar-upload" className={`
+                absolute bottom-0 right-0
+                bg-base-content hover:scale-105
+                p-2 rounded-full cursor-pointer
+                transition-all duration-200
+                ${isUpdatingProfile ? 'animate-pulse pointer-events-none' : ''}`}>
+                <Camera className='w-5 h-5 text-base-200'/>
+                
+                {/* Hidden File Input */}
+                <input type="file" 
+                  id='avatar-upload'
+                  className='hidden'
+                  accept='image/*'
+                  onChange={handleImageUpload}
+                  disabled={isUpdatingProfile}/>
+              </label>
+            </div>
           </div>
         </div>
       </div>
@@ -21,4 +52,4 @@ const ProfilePage = () => {
   )
 }
 
-export default ProfilePage
+export default ProfilePage;
