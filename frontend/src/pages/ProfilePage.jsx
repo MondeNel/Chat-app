@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuthStore } from '../store/useAuthStore.js';
 import avatar from '../../public/avatar.png'; 
 import { Camera, Mail, User } from 'lucide-react';
@@ -6,6 +6,8 @@ import { Camera, Mail, User } from 'lucide-react';
 const ProfilePage = () => {
   // Access authentication state and update function from the store
   const { authUser, isUpdatingProfile, updatProfile } = useAuthStore();
+  const [selectedImage, setSelectedImage] = useState(null);
+
 
   // Handle image upload (function to be implemented)
   const handleImageUpload = async (e) => {
@@ -18,6 +20,7 @@ const ProfilePage = () => {
 
     reader.onload = async () => {
       const base64Image = reader.result; // On successful load, get base64 encoded image
+      setSelectedImage(base64Image);
       await updatProfile({ profilePic: base64Image }); // Update the profile with new image
     }
   };
@@ -36,7 +39,7 @@ const ProfilePage = () => {
           <div className='flex flex-col items-center gap-4'>
             <div className='relative'>
               {/* Profile Picture */}
-              <img src={authUser.profilePic || '/avatar.png'} alt="Profile" 
+              <img src={selectedImage || authUser.profilePic || '/avatar.png'} alt="Profile" 
                 className='size-32 rounded-full object-cover border-4'/>
               
               {/* Upload Button */}
