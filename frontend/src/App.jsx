@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import Navbar from './components/Navbar';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
@@ -19,12 +19,9 @@ const App = () => {
 
   // Trigger authentication check when component mounts
   useEffect(() => {
-    if (checkAuth) {
-      checkAuth();
-    } else {
-      console.error('checkAuth is not a function');
-    }
-  }, [checkAuth]);
+    checkAuth(); // Call auth check on mount
+  }, []); // ✅ Empty array ensures it only runs once
+  
 
   // Logging the current authentication state
   console.log({ authUser });
@@ -48,7 +45,7 @@ const App = () => {
         <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
         <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
         <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
-        <Route path="/setting" element={<SettingsPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
       </Routes>
 
