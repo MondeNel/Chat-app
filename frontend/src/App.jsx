@@ -20,10 +20,6 @@ const App = () => {
     checkAuth();
   }, []); // ✅ Empty array ensures it only runs once
 
-  if (isCheckingAuth) {
-    return <div>Loading...</div>; // Show a loading screen while checking auth
-  }
-
   // Logging the current authentication state
   console.log({ authUser });
 

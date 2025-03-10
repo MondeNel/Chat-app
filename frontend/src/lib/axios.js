@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 // Create an Axios instance with a base URL and default headers
-const axiosInstance = axios.create({
-  baseURL: 'http://localhost:5001/api', // Ensure this matches your server's base URL
-  withCredentials: true, // If you need to send cookies
+export const axiosInstance = axios.create({
+  baseURL: import.meta.env.MODE === "development" ? "http://localhost:5001/api" : "/api",
+  withCredentials: true,
 });
 
 
