@@ -15,13 +15,10 @@ const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
 
   // Debugging: Verify checkAuth is a function
-  console.log('checkAuth:', checkAuth);
-
-  // Trigger authentication check when component mounts
   useEffect(() => {
-    checkAuth(); // Call auth check on mount
+    // Trigger authentication check when component mounts
+    checkAuth();
   }, []); // ✅ Empty array ensures it only runs once
-  
 
   // Logging the current authentication state
   console.log({ authUser });
@@ -45,7 +42,11 @@ const App = () => {
         <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
         <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
         <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
-        <Route path="/settings" element={<SettingsPage />} />
+        
+        {/* Protected Route: Settings (only for authenticated users) */}
+        <Route path="/settings" element={authUser ? <SettingsPage /> : <Navigate to="/login" />} />
+        
+        {/* Protected Route: Profile (only for authenticated users) */}
         <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
       </Routes>
 

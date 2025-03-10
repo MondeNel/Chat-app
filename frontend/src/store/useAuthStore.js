@@ -17,8 +17,13 @@ export const useAuthStore = create((set, get) => ({
       console.log("Auth Check Response:", res.data);
       set({ authUser: res.data.user });
     } catch (error) {
-      console.log("Error in checkAuth:", error);
-      set({ authUser: null });
+      if (error.response && error.response.status === 404) {
+        console.log("Auth check endpoint not found");
+        set({ authUser: null });
+      } else {
+        console.log("Error in checkAuth:", error);
+        set({ authUser: null });
+      }
     } finally {
       set({ isCheckingAuth: false });
     }
