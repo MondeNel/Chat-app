@@ -15,7 +15,7 @@ const App = () => {
   // Destructure values from authentication store
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
 
-  const {theme} = useThemeStore();
+  const { theme } = useThemeStore();
 
   // Debugging: Verify checkAuth is a function
   useEffect(() => {
@@ -25,6 +25,10 @@ const App = () => {
 
   // Logging the current authentication state
   console.log({ authUser });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   // Return a loading spinner if authentication is being checked
   if (isCheckingAuth) {
