@@ -9,10 +9,13 @@ import ProfilePage from './pages/ProfilePage';
 import { useAuthStore } from './store/useAuthStore.js';
 import { Loader } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
+import { useThemeStore } from './store/useThemeStore.js';
 
 const App = () => {
   // Destructure values from authentication store
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
+
+  const {theme} = useThemeStore();
 
   // Debugging: Verify checkAuth is a function
   useEffect(() => {
@@ -33,7 +36,7 @@ const App = () => {
   }
 
   return (
-    <div data-theme="light">
+    <div data-theme={theme}>
       {/* Render the Navbar component on all pages */}
       <Navbar />
 
