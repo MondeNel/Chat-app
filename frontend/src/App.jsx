@@ -33,7 +33,7 @@ const App = () => {
   }
 
   return (
-    <div>
+    <div data-theme="light">
       {/* Render the Navbar component on all pages */}
       <Navbar />
 
