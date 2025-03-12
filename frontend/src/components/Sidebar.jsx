@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useChatStore } from '../store/useChatStore.js';
 import SidebarSkeleton from '../components/skeletons/SidebarSkeleton.jsx';
-import { Users } from "lucide-react"; // ✅ Importing the missing icon
+import { Users } from "lucide-react";
 
 const Sidebar = () => {
     const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
@@ -20,28 +20,43 @@ const Sidebar = () => {
                     <Users className='size-6' />
                     <span className='font-medium hidden lg:block'>Contacts</span>
                 </div>
+
+                {/* Todo: Online filter toggle */}
             </div>
 
             {/* Users List */}
             <div className='overflow-y-auto w-full py-3'>
-                {users.length === 0 ? (
-                    <p className='text-center text-sm text-gray-500'>No users found</p>
-                ) : (
-                    users.map((user) => (
-                        <button
-                            key={user.id}
-                            onClick={() => setSelectedUser(user)}
-                            className={`flex items-center gap-2 p-3 w-full text-left ${
-                                selectedUser?.id === user.id ? 'bg-primary text-white' : 'hover:bg-gray-100'
-                            } transition rounded-md`}
-                        >
-                            <span className="h-8 w-8 bg-gray-300 rounded-full flex items-center justify-center">
-                                {user.name[0]}
-                            </span>
-                            <span className="hidden lg:block">{user.name}</span>
-                        </button>
-                    ))
-                )}
+                {users.map((user) => (
+                    <button
+                        key={user.id}
+                        onClick={() => setSelectedUser(user)} 
+                        className={`w-full p-3 flex items-center gap-3
+                        hover:bg-base-300 transition-colors ${
+                            selectedUser?.id === user.id ? 'bg-base-300 ring-1 ring-base-300' : ''
+                        }`}
+                    >
+                        <div className='relative mx-auto lg:mx-0'>
+                            <img
+                                src={user.profilePic || '/avatar.png'}
+                                alt={user.name}
+                                className='size-12 object-cover rounded-full'
+                            />
+                            {/* If `onlineUsers` is available, show online status */}
+                            {user.isOnline && (
+                                <span className='absolute bottom-0 right-0 size-3 bg-green-500 
+                                rounded-full ring-2 ring-zinc-900' />
+                            )}
+                        </div>
+
+                        {/* User info - only visible on larger screens */}
+                        <div className='hidden lg:block text-left min-w-0'>
+                            <div className='font-medium truncate'>{user.name}</div>
+                            <div className='text-sm text-zinc-400'>
+                                {user.isOnline ? 'Online' : 'Offline'}
+                            </div>
+                        </div>
+                    </button>
+                ))}
             </div>
         </aside>
     );
