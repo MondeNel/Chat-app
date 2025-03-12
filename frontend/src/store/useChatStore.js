@@ -5,7 +5,7 @@ import { axiosInstance } from '../lib/axios.js';
 /**
  * Zustand store for managing chat-related state.
  */
-export const useChatStore = create((set) => ({
+export const useChatStore = create((set, get) => ({
     messages: [],
     users: [],
     selectedUser: null, 
@@ -39,6 +39,16 @@ export const useChatStore = create((set) => ({
             toast.error(error.response?.data?.message || "Failed to fetch messages");
         } finally {
             set({ isMessagesLoading: false });
+        }
+    },
+
+    sendMessages: async (messageData) => {
+        const { selectedUser, messages } = get(); // get() to access store's state
+        try {
+            const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
+            set({ messages: [...messages, res.data] }); // Append new message to messages state
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to send message");
         }
     },
 
