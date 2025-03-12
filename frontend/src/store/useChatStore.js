@@ -8,7 +8,7 @@ import { axiosInstance } from '../lib/axios.js';
 export const useChatStore = create((set) => ({
     messages: [],
     users: [],
-    selectedUsers: [],
+    selectedUser: null, 
     isUsersLoading: false,
     isMessagesLoading: false,
 
@@ -21,14 +21,14 @@ export const useChatStore = create((set) => ({
             const res = await axiosInstance.get('/messages/users');
             set({ users: res.data });
         } catch (error) {
-            toast.error(error.response.data.message);
+            toast.error(error.response?.data?.message || "Failed to fetch users");
         } finally {
-            set ({ isUsersLoading: false });
+            set({ isUsersLoading: false });
         }
     },
 
     /**
-     * Get messages and updates the state.
+     * Fetch messages and update the state.
      */
     getMessages: async (userId) => {
         set({ isMessagesLoading: true });
@@ -36,9 +36,15 @@ export const useChatStore = create((set) => ({
             const response = await axiosInstance.get(`/messages/${userId}`);
             set({ messages: response.data });
         } catch (error) {
-            toast.error(error.response.data.message);
+            toast.error(error.response?.data?.message || "Failed to fetch messages");
+        } finally {
             set({ isMessagesLoading: false });
         }
     },
+
+    /**
+     * Select a user and update the state.
+     */
+    setSelectedUser: (selectedUser) => set({ selectedUser }), // Ensures only one user is selected
 
 }));
