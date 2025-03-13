@@ -4,6 +4,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import ChatHeader from './ChatHeader.jsx';
 import MessageInput from './MessageInput.jsx';
 import MessageSkeleton from './skeletons/MessageSkeleton.jsx';
+import { formatMessageTime } from '../lib/utilis.js';
 
 const ChatContainer = () => {
   const { messages, getMessages, isMessagesLoading, selectedUser } = useChatStore();
@@ -52,7 +53,7 @@ const ChatContainer = () => {
             {/* Message Header & Timestamp */}
             <div className='chat-header mb-1'>
               <time className='text-xs opacity-50 ml-1'>
-                {new Date(message.createdAt).toLocaleTimeString()} 
+               {formatMessageTime(message.createdAt)}
               </time>
             </div>
 
