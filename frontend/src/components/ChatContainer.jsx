@@ -56,8 +56,19 @@ const ChatContainer = () => {
               </time>
             </div>
 
-            {/* Message Bubble */}
-            <div className='chat-bubble'>{message.text}</div>
+              {/* Message Bubble */}
+              <div className="chat-bubble flex">
+                {message.image && (
+                  <img
+                    src={message.image}
+                    alt="Attachment"
+                    className="sm:max-w-[200px] rounded-md mb-2"
+                  />
+                )}
+
+                {message.text && <p>{message.text}</p>}
+              </div>
+
           </div>
         ))}
       </div>
