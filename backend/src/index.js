@@ -26,7 +26,7 @@ app.use(
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/message", messageRoutes);
+app.use("/api/messages", messageRoutes);
 
 // Connect to the database and start the server
 connectDB()
