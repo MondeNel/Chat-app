@@ -1,42 +1,52 @@
-import React, { useRef, useState } from 'react';
-import { useChatStore } from '../store/useChatStore.js';
-import { X } from 'lucide-react'; // Make sure to import the icon for removal
+import { useRef, useState } from "react";
+import { useChatStore } from "../store/useChatStore";
+import { Image, Send, X } from "lucide-react";
+import toast from "react-hot-toast";
 
 const MessageInput = () => {
-  const [text, setText] = useState('');
+  const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
-  const { sendMessages } = useChatStore(); // Assuming sendMessages is defined in your store
+  const sendMessages = useChatStore((state) => state.sendMessages);
+  const selectedUser = useChatStore((state) => state.selectedUser);
 
-  // Handle Image Selection
+  // Handle image file selection
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result); // Set the image preview
-      };
-      reader.readAsDataURL(file);
+    if (!file || !file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file.");
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onloadend = () => setImagePreview(reader.result);
+    reader.readAsDataURL(file);
   };
 
-  // Remove the Image Preview
+  // Remove the image preview
   const removeImage = () => {
     setImagePreview(null);
-    fileInputRef.current.value = ''; // Reset file input
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // Handle Send Message (with or without image)
-  const handleSendMessage = (e) => {
-    e.preventDefault(); // Prevent page refresh
-    if (text.trim() || imagePreview) {
-      const messageData = {
-        text,
-        image: imagePreview, // Send image if available
-      };
-      sendMessages(messageData); // Use the sendMessages function from your store
-      setText(''); // Clear text input after sending
-      setImagePreview(null); // Clear image preview after sending
+  // Handle message sending
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!text.trim() && !imagePreview) return;
+
+    if (!selectedUser) {
+      toast.error("Please select a user before sending a message.");
+      return;
+    }
+
+    try {
+      await sendMessages({ text: text.trim(), image: imagePreview });
+      setText("");
+      setImagePreview(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      toast.error("Failed to send message.");
     }
   };
 
@@ -60,36 +70,41 @@ const MessageInput = () => {
           </div>
         </div>
       )}
-      <form onSubmit={handleSendMessage}>
-        <div className="flex gap-2 items-center">
+
+      <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+        <div className="flex-1 flex gap-2">
           <input
             type="text"
+            className="w-full input input-bordered rounded-lg input-sm sm:input-md"
             placeholder="Type a message..."
             value={text}
             onChange={(e) => setText(e.target.value)}
-            className="flex-1 p-2 rounded-md border border-zinc-300"
           />
+
           <input
             type="file"
-            ref={fileInputRef}
-            onChange={handleImageChange}
             accept="image/*"
             className="hidden"
+            ref={fileInputRef}
+            onChange={handleImageChange}
           />
+
           <button
             type="button"
-            onClick={() => fileInputRef.current.click()}
-            className="p-2 rounded-md bg-base-300"
+            className={`hidden sm:flex btn btn-circle ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
+            onClick={() => fileInputRef.current?.click()}
           >
-            📷
-          </button>
-          <button
-            type="submit"
-            className="p-2 rounded-md bg-blue-500 text-white"
-          >
-            Send
+            <Image size={20} />
           </button>
         </div>
+
+        <button
+          type="submit"
+          className="btn btn-sm btn-circle"
+          disabled={!text.trim() && !imagePreview}
+        >
+          <Send size={22} />
+        </button>
       </form>
     </div>
   );

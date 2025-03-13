@@ -43,14 +43,25 @@ export const useChatStore = create((set, get) => ({
     },
 
     sendMessages: async (messageData) => {
-        const { selectedUser, messages } = get(); // get() to access store's state
+        const { selectedUser, messages } = get();
+    
+        if (!selectedUser) {
+            toast.error("No user selected!");
+            return;
+        }
+    
+        console.log("Sending message to:", selectedUser._id);
+        console.log("Message Data:", messageData);
+    
         try {
             const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-            set({ messages: [...messages, res.data] }); // Append new message to messages state
+            set({ messages: [...messages, res.data] });
         } catch (error) {
-            toast.error(error.response?.data?.message || "Failed to send message");
+            console.error("Failed to send message:", error.response?.data || error);
+            toast.error(error.response?.data?.message || "Failed to send message.");
         }
     },
+    
 
     /**
      * Select a user and update the state.
