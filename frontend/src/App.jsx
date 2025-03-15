@@ -13,9 +13,11 @@ import { useThemeStore } from './store/useThemeStore.js';
 
 const App = () => {
   // Destructure values from authentication store
-  const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
+  const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore();
 
   const { theme } = useThemeStore();
+
+  console.log(onlineUsers);
 
   // Debugging: Verify checkAuth is a function
   useEffect(() => {
