@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import toast from 'react-hot-toast';
 import { axiosInstance } from '../lib/axios.js';
-import { useAuthStore } from './useAuthStore.js'
+import { useAuthStore } from './useAuthStore.js';
 
 /**
  * Zustand store for managing chat-related state.
@@ -63,24 +63,29 @@ export const useChatStore = create((set, get) => ({
         }
     },
 
-    subcribeToMessages: () => {
-        const { selectedUser } =  get()
-        if(!selectedUser) return;
+    /**
+     * Subscribe to new messages via WebSocket
+     */
+    subscribeToMessages: () => {  // ✅ Fixed typo in function name
+        const { selectedUser } = get();
+        if (!selectedUser) return;
 
         const socket = useAuthStore.getState().socket;
 
         socket.on('newMessage', (newMessage) => {
             set({
-                messages: [...get().message, newMessage],
+                messages: [...get().messages, newMessage], // ✅ Corrected 'message' to 'messages'
             });
         });
     },
 
+    /**
+     * Unsubscribe from new message events
+     */
     unsubscribeFromMessages: () => {
         const socket = useAuthStore.getState().socket;
         socket.off('newMessage');
     },
-    
 
     /**
      * Select a user and update the state.
