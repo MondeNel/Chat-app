@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import toast from 'react-hot-toast';
 import { axiosInstance } from '../lib/axios.js';
+import { useAuthStore } from './useAuthStore.js'
 
 /**
  * Zustand store for managing chat-related state.
@@ -60,6 +61,24 @@ export const useChatStore = create((set, get) => ({
             console.error("Failed to send message:", error.response?.data || error);
             toast.error(error.response?.data?.message || "Failed to send message.");
         }
+    },
+
+    subcribeToMessages: () => {
+        const { selectedUser } =  get()
+        if(!selectedUser) return;
+
+        const socket = useAuthStore.getState().socket;
+
+        socket.on('newMessage', (newMessage) => {
+            set({
+                messages: [...get().message, newMessage],
+            });
+        });
+    },
+
+    unsubscribeFromMessages: () => {
+        const socket = useAuthStore.getState().socket;
+        socket.off('newMessage');
     },
     
 
