@@ -1,11 +1,11 @@
-import { useChatStore } from "../store/useChatStore";
+import { useChatStore } from "../store/useChatStore.js";
 import { useEffect, useRef } from "react";
 
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
 import { useAuthStore } from "../store/useAuthStore.js";
-import { formatMessageTime } from "../lib/utils";
+import { formatMessageTime } from "../lib/utils.js";
 
 const ChatContainer = () => {
   const {
@@ -19,18 +19,16 @@ const ChatContainer = () => {
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
 
-  // 'selectedUser._id' is the receiverId in this context.
-  const receiverId = selectedUser._id;
-
   useEffect(() => {
-    getMessages(receiverId); // Fetch messages based on the receiverId (selectedUser)
+    getMessages(selectedUser._id);
+
     subscribeToMessages();
 
     return () => unsubscribeFromMessages();
-  }, [receiverId, getMessages, subscribeToMessages, unsubscribeFromMessages]);
+  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
 
   useEffect(() => {
-    if (messageEndRef.current && messages) {
+    if (messageEndRef.current) {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
@@ -50,51 +48,56 @@ const ChatContainer = () => {
       <ChatHeader />
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
-          <div
-            key={message._id}
-            className={`flex ${message.senderId === authUser._id ? "justify-end" : "justify-start"}`}
-          >
-            <div className={`flex items-end gap-2 ${message.senderId === authUser._id ? "flex-row-reverse" : "flex-row"}`}>
-              {/* Profile Picture */}
-              <div className="chat-image avatar">
-                <div className="size-10 rounded-full border">
-                  <img
-                    src={
-                      message.senderId === authUser._id
-                        ? authUser.profilePic || "/avatar.png"
-                        : selectedUser.profilePic || "/avatar.png"
-                    }
-                    alt="profile pic"
-                  />
+        {messages.map((message, index) => {
+          const isSender = message.senderId === authUser._id;
+          return (
+            <div
+              key={message._id}
+              className={`flex ${isSender ? "justify-end" : "justify-start"}`}
+              ref={index === messages.length - 1 ? messageEndRef : null} // Attach ref only to the last message
+            >
+              <div className={`flex items-end gap-2 ${isSender ? "flex-row-reverse" : "flex-row"}`}>
+                {/* Profile Picture */}
+                <div className="avatar">
+                  <div className="size-10 rounded-full border">
+                    <img
+                      src={
+                        isSender
+                          ? authUser.profilePic || "/avatar.png"
+                          : selectedUser.profilePic || "/avatar.png"
+                      }
+                      alt="profile pic"
+                    />
+                  </div>
+                </div>
+
+                {/* Chat Bubble */}
+                <div
+                  className={`chat-bubble px-3 py-2 max-w-[75%] ${
+                    isSender ? "bg-primary text-white" : "bg-gray-200 text-black"
+                  }`}
+                >
+                  {message.image && (
+                    <img
+                      src={message.image}
+                      alt="Attachment"
+                      className="sm:max-w-[200px] rounded-md mb-2"
+                    />
+                  )}
+                  {message.text && <p>{message.text}</p>}
+                  {/* Timestamp */}
+                  <div className="text-xs text-gray-500 mt-1 text-right">
+                    {formatMessageTime(message.createdAt)}
+                  </div>
                 </div>
               </div>
-
-              {/* Chat Bubble */}
-              <div className={`chat-bubble ${message.senderId === authUser._id ? "bg-primary text-white" : "bg-base-200 text-base-content"}`}>
-                {message.image && (
-                  <img
-                    src={message.image}
-                    alt="Attachment"
-                    className="sm:max-w-[200px] rounded-md mb-2"
-                  />
-                )}
-                {message.text && <p>{message.text}</p>}
-              </div>
-
-              {/* Timestamp */}
-              <div className="text-xs opacity-50">
-                {formatMessageTime(message.createdAt)}
-              </div>
             </div>
-          </div>
-        ))}
-        <div ref={messageEndRef} />
+          );
+        })}
       </div>
 
       <MessageInput />
     </div>
   );
 };
-
 export default ChatContainer;
