@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
-import { useChatStore } from "../store/useChatStore.js";
-import { useAuthStore } from "../store/useAuthStore";
-import ChatHeader from "./ChatHeader.jsx";
-import MessageInput from "./MessageInput.jsx";
-import MessageSkeleton from "./skeletons/MessageSkeleton.jsx";
-import { formatMessageTime } from "../lib/utilis.js";
+import { useChatStore } from "../store/useChatStore";
+import { useEffect, useRef } from "react";
+
+import ChatHeader from "./ChatHeader";
+import MessageInput from "./MessageInput";
+import MessageSkeleton from "./skeletons/MessageSkeleton";
+import { useAuthStore } from "../store/useAuthStore.js";
+import { formatMessageTime } from "../lib/utils";
 
 const ChatContainer = () => {
   const {
@@ -13,22 +14,26 @@ const ChatContainer = () => {
     isMessagesLoading,
     selectedUser,
     subscribeToMessages,
-    unsubscribeFromMessages, // ✅ Fixed typo (was `unsubcribeFromMessages`)
+    unsubscribeFromMessages,
   } = useChatStore();
-  
-  const { authUser } = useAuthStore(); // ✅ Ensure authUser is available
+  const { authUser } = useAuthStore();
+  const messageEndRef = useRef(null);
+
+  // 'selectedUser._id' is the receiverId in this context.
+  const receiverId = selectedUser._id;
 
   useEffect(() => {
-    if (selectedUser?._id) {
-      getMessages(selectedUser._id);
+    getMessages(receiverId); // Fetch messages based on the receiverId (selectedUser)
+    subscribeToMessages();
+
+    return () => unsubscribeFromMessages();
+  }, [receiverId, getMessages, subscribeToMessages, unsubscribeFromMessages]);
+
+  useEffect(() => {
+    if (messageEndRef.current && messages) {
+      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-
-    subscribeToMessages(); // ✅ Call function correctly
-
-    return () => {
-      unsubscribeFromMessages(); // ✅ Cleanup function
-    };
-  }, [selectedUser?._id, getMessages, subscribeToMessages, unsubscribeFromMessages]); // ✅ Ensure correct dependency array
+  }, [messages]);
 
   if (isMessagesLoading) {
     return (
@@ -48,45 +53,43 @@ const ChatContainer = () => {
         {messages.map((message) => (
           <div
             key={message._id}
-            className={`chat ${
-              message.senderId === authUser._id ? "chat-end" : "chat-start"
-            }`}
+            className={`flex ${message.senderId === authUser._id ? "justify-end" : "justify-start"}`}
           >
-            {/* Profile Image */}
-            <div className="chat-image avatar">
-              <div className="size-10 rounded-full border">
-                <img
-                  src={
-                    message.senderId === authUser._id
-                      ? authUser.profilePic || "/avatar.png"
-                      : selectedUser?.profilePic || "/avatar.png"
-                  }
-                  alt="profile pic"
-                />
+            <div className={`flex items-end gap-2 ${message.senderId === authUser._id ? "flex-row-reverse" : "flex-row"}`}>
+              {/* Profile Picture */}
+              <div className="chat-image avatar">
+                <div className="size-10 rounded-full border">
+                  <img
+                    src={
+                      message.senderId === authUser._id
+                        ? authUser.profilePic || "/avatar.png"
+                        : selectedUser.profilePic || "/avatar.png"
+                    }
+                    alt="profile pic"
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Message Header & Timestamp */}
-            <div className="chat-header mb-1">
-              <time className="text-xs opacity-50 ml-1">
+              {/* Chat Bubble */}
+              <div className={`chat-bubble ${message.senderId === authUser._id ? "bg-primary text-white" : "bg-base-200 text-base-content"}`}>
+                {message.image && (
+                  <img
+                    src={message.image}
+                    alt="Attachment"
+                    className="sm:max-w-[200px] rounded-md mb-2"
+                  />
+                )}
+                {message.text && <p>{message.text}</p>}
+              </div>
+
+              {/* Timestamp */}
+              <div className="text-xs opacity-50">
                 {formatMessageTime(message.createdAt)}
-              </time>
-            </div>
-
-            {/* Message Bubble */}
-            <div className="chat-bubble flex flex-col">
-              {message.image && (
-                <img
-                  src={message.image}
-                  alt="Attachment"
-                  className="sm:max-w-[200px] rounded-md mb-2"
-                />
-              )}
-
-              {message.text && <p>{message.text}</p>}
+              </div>
             </div>
           </div>
         ))}
+        <div ref={messageEndRef} />
       </div>
 
       <MessageInput />

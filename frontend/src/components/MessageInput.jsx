@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useChatStore } from "../store/useChatStore";
+import { useChatStore } from "../store/useChatStore.js";
 import { Image, Send, X } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -7,46 +7,43 @@ const MessageInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
-  const sendMessages = useChatStore((state) => state.sendMessages);
-  const selectedUser = useChatStore((state) => state.selectedUser);
+  const { sendMessage } = useChatStore();
 
-  // Handle image file selection
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (!file || !file.type.startsWith("image/")) {
-      toast.error("Please select a valid image file.");
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
       return;
     }
 
     const reader = new FileReader();
-    reader.onloadend = () => setImagePreview(reader.result);
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+    };
     reader.readAsDataURL(file);
   };
 
-  // Remove the image preview
   const removeImage = () => {
     setImagePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // Handle message sending
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!text.trim() && !imagePreview) return;
 
-    if (!selectedUser) {
-      toast.error("Please select a user before sending a message.");
-      return;
-    }
-
     try {
-      await sendMessages({ text: text.trim(), image: imagePreview });
+      await sendMessage({
+        text: text.trim(),
+        image: imagePreview,
+      });
+
+      // Clear form
       setText("");
       setImagePreview(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
       console.error("Failed to send message:", error);
-      toast.error("Failed to send message.");
     }
   };
 
@@ -62,7 +59,8 @@ const MessageInput = () => {
             />
             <button
               onClick={removeImage}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300 flex items-center justify-center"
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300
+              flex items-center justify-center"
               type="button"
             >
               <X className="size-3" />
@@ -80,7 +78,6 @@ const MessageInput = () => {
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
-
           <input
             type="file"
             accept="image/*"
@@ -91,13 +88,13 @@ const MessageInput = () => {
 
           <button
             type="button"
-            className={`hidden sm:flex btn btn-circle ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
+            className={`hidden sm:flex btn btn-circle
+                     ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
             onClick={() => fileInputRef.current?.click()}
           >
             <Image size={20} />
           </button>
         </div>
-
         <button
           type="submit"
           className="btn btn-sm btn-circle"

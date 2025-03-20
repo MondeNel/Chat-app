@@ -35,7 +35,7 @@ export const useChatStore = create((set, get) => ({
         set({ isMessagesLoading: true });
         try {
             const response = await axiosInstance.get(`/messages/${userId}`);
-            set({ messages: response.data });
+            set({ messages: response.data });  // ✅ Ensure all messages are stored
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to fetch messages");
         } finally {
@@ -43,17 +43,20 @@ export const useChatStore = create((set, get) => ({
         }
     },
 
-    sendMessages: async (messageData) => {
+    /**
+     * Send a message to the selected user.
+     */
+    sendMessage: async (messageData) => {
         const { selectedUser, messages } = get();
-    
+
         if (!selectedUser) {
             toast.error("No user selected!");
             return;
         }
-    
+
         console.log("Sending message to:", selectedUser._id);
         console.log("Message Data:", messageData);
-    
+
         try {
             const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
             set({ messages: [...messages, res.data] });
@@ -91,5 +94,4 @@ export const useChatStore = create((set, get) => ({
      * Select a user and update the state.
      */
     setSelectedUser: (selectedUser) => set({ selectedUser }), // Ensures only one user is selected
-
 }));
