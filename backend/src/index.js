@@ -7,11 +7,14 @@ import messageRoutes from "./routes/message.route.js";
 import cors from "cors";
 import { app, server } from "./lib/socket.js";
 
+import path from "path";
+
 // Load environment variables
 dotenv.config();
 
 
 const PORT = process.env.PORT || 5001; // Fallback to 5001 if PORT is not set
+const __dirname = path.resolve();
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -28,6 +31,10 @@ app.use(
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
+
+if(process.env.NODE_ENV === "production"){
+  app.use(express.static(path.join(__dirname, "../frontend/build")));
+}
 
 // Connect to the database and start the server
 connectDB()
