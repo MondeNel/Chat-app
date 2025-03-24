@@ -19,20 +19,26 @@ const ChatContainer = () => {
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
 
+  // Fetch messages and subscribe to real-time updates
   useEffect(() => {
-    getMessages(selectedUser._id);
+    if (selectedUser?._id) {
+      getMessages(selectedUser._id); // Fetch messages for the selected user
+      subscribeToMessages(); // Subscribe to real-time updates
+    }
 
-    subscribeToMessages();
+    return () => {
+      unsubscribeFromMessages(); // Unsubscribe when the component unmounts
+    };
+  }, [selectedUser?._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
 
-    return () => unsubscribeFromMessages();
-  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
-
+  // Scroll to the bottom when messages change
   useEffect(() => {
     if (messageEndRef.current) {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
+  // Show loading skeleton if messages are loading
   if (isMessagesLoading) {
     return (
       <div className="flex-1 flex flex-col overflow-auto">
@@ -45,8 +51,10 @@ const ChatContainer = () => {
 
   return (
     <div className="flex-1 flex flex-col overflow-auto">
+      {/* Chat Header */}
       <ChatHeader />
 
+      {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message, index) => {
           const isSender = message.senderId === authUser._id;
@@ -54,7 +62,7 @@ const ChatContainer = () => {
             <div
               key={message._id}
               className={`flex ${isSender ? "justify-end" : "justify-start"}`}
-              ref={index === messages.length - 1 ? messageEndRef : null} // Attach ref only to the last message
+              ref={index === messages.length - 1 ? messageEndRef : null} // Attach ref to the last message
             >
               <div className={`flex items-end gap-2 ${isSender ? "flex-row-reverse" : "flex-row"}`}>
                 {/* Profile Picture */}
@@ -64,7 +72,7 @@ const ChatContainer = () => {
                       src={
                         isSender
                           ? authUser.profilePic || "/avatar.png"
-                          : selectedUser.profilePic || "/avatar.png"
+                          : selectedUser?.profilePic || "/avatar.png"
                       }
                       alt="profile pic"
                     />
@@ -73,7 +81,7 @@ const ChatContainer = () => {
 
                 {/* Chat Bubble */}
                 <div
-                  className={`chat-bubble px-3 py-2 max-w-[75%] ${
+                  className={`max-w-[75%] rounded-xl p-3 shadow-sm ${
                     isSender ? "bg-primary text-white" : "bg-gray-200 text-black"
                   }`}
                 >
@@ -84,9 +92,14 @@ const ChatContainer = () => {
                       className="sm:max-w-[200px] rounded-md mb-2"
                     />
                   )}
-                  {message.text && <p>{message.text}</p>}
+                  {message.text && <p className="text-sm">{message.text}</p>}
+
                   {/* Timestamp */}
-                  <div className="text-xs text-gray-500 mt-1 text-right">
+                  <div
+                    className={`text-xs mt-1 ${
+                      isSender ? "text-white/70" : "text-black/70"
+                    } text-right`}
+                  >
                     {formatMessageTime(message.createdAt)}
                   </div>
                 </div>
@@ -96,8 +109,10 @@ const ChatContainer = () => {
         })}
       </div>
 
+      {/* Message Input */}
       <MessageInput />
     </div>
   );
 };
+
 export default ChatContainer;
